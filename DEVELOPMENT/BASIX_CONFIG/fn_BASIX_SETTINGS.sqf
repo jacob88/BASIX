@@ -46,7 +46,7 @@ _Setting13 = [""]; //List of player UID's exempt from Anti-Hack
 
 //Admin Menu
 _Setting14 = false; //Enable BASIX admin menu system ("true" is on, "false" is off, set to false by default)
-_Setting15 = [["",""]]; //List of admin UID's and level, structure [UID,LEVEL] e.g. ["123456","SuperAdmin"] (options: "SuperAdmin", "Admin", "Moderator")
+_Setting15 = [["",""],["",""]]; //List of admin UID's and level, structure [UID,LEVEL] e.g. [["123456","SuperAdmin"],["789123","Admin"],["456789","Moderator"]] (options: "SuperAdmin", "Admin", "Moderator")
 
 //Permanent BASIX Bans
 _Setting18 = true; //Enable BASIX permanent ban system, be warned possible security risk if enabled ("true" is on, "false" is off, set to true by default)

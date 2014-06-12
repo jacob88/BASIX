@@ -222,7 +222,7 @@ if (_Settings select 10) then
 				if (_tpcheck > 835) exitWith
 					{
 					_reason = format ["Teleported (%1)",_tpcheck];
-					_reason spawn BASIX_BAN_ADD;
+					_reason spawn BASIX_KICK_ADD;
 					sleep 0.1;
 					endMission "LOSER";
 					};
@@ -232,7 +232,7 @@ if (_Settings select 10) then
 				if (_tpcheck > 30) exitWith
 					{
 					_reason = format ["Teleported (%1)",_tpcheck];
-					_reason spawn BASIX_BAN_ADD;
+					_reason spawn BASIX_KICK_ADD;
 					sleep 0.1;
 					endMission "LOSER";
 					};
@@ -351,7 +351,7 @@ publicVariable "BASIX_CLASSNAME_WHITELIST_TEST";
 			};
 		for "_i" from 0 to ((count _classes) -1) do
 			{
-			_BASIXNOSCAN = ["BASIX_PREM_ADMIN","BASIX_NONPREM_ADMIN","BASIX_ADMIN","BASIX_NONPREM_ADMIN_CONFIRM_1","BASIX_NONPREM_ADMIN_CONFIRM_2"];
+			_BASIXNOSCAN = ["BASIX_PREM_ADMIN","BASIX_NONPREM_ADMIN","BASIX_ADMIN"];
 			if (!((_classes select _i) in (call BASIX_CLASSNAME_WHITELIST_TEST)) && !((_classes select _i) in _BASIXNOSCAN)) exitWith
 				{
 				_reason = format ["NonWhitelisted Classname (%1)",(_classes select _i)];
