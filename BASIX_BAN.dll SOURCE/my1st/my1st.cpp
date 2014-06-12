@@ -48,7 +48,7 @@ void __stdcall RVExtension(char *output, int outputSize, const char *function)
 			file3.close();
 
 			fstream file4("BASIX_LOGS/Ban_Log.txt", ios_base::app | ios_base::out);
-			file4 << "[[" << ltm->tm_mday << "/" << 1 + ltm->tm_mon << "/" << ltm->tm_year - 100 << "] " << 1 + ltm->tm_hour << ":" << 1 + ltm->tm_min << ":" << 1 + ltm->tm_sec << "]:" << " " << INPUT_UID << endl;
+			file4 << "[[" << ltm->tm_mday << "/" << 1 + ltm->tm_mon << "/" << ltm->tm_year - 100 << "] " << ltm->tm_hour << ":" << ltm->tm_min << ":" << ltm->tm_sec << "]:" << " " << INPUT_UID << endl;
 			file4.close();
 		}
 	}
