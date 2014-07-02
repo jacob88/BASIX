@@ -58,9 +58,21 @@ _Setting20 = [""]; //Disabled mission PBO files
 //CheatEngine Injector Scans
 _Setting21 = true; //Allow BASIX to scan for indications of someone Injecting using CheatEngine ("true" is on, "false" is off, set to true by default)
 
+//Chat-Loging
+_Setting26 = true; //Allow BASIX to store chat conversations ("true" is on, "false" is off, set to true by default)
+_Setting27 = false; //Enable word and phrase filter ("true" is on, "false" is off, set to false by default)
+_Setting28 = [""]; //Filter list, capitals don't matter (e.g. ["fuck","cunt","I will kill your dog"])
+
+//Chat-Commands
+_Setting29 = true; //Enable chat based commands, found in "fn_BASIX_COMMANDS.sqf" ("true" is on, "false" is off, set to true by default)
+
+//Version Checker
+_Setting30 = true; //Enable version checker ("true" is on, "false" is off, set to true by default)
+
+
 
 
 
 //End Of Settings ** Do Not Edit Below This Point **
-BASIX_SETTINGS = compileFinal (format ['_return = [%1,%2,%3,%4,%5,%6,%7,%8,%9,%10,%11,%12,%13,%14,%15,%16,%17,%18,%19,%20,%21,%22,%23,%24,%25]; _return',_Setting1,_Setting2,_Setting3,_Setting4,_Setting5,_Setting6,_Setting7,_Setting8,_Setting9,_Setting10,_Setting11,_Setting12,_Setting13,_Setting14,_Setting15,_Setting16,_Setting17,_Setting18,_Setting19,_Setting20,_Setting21,_Setting22,_Setting23,_Setting24,_Setting25]);
+BASIX_SETTINGS = compileFinal (format ['_return = [%1,%2,%3,%4,%5,%6,%7,%8,%9,%10,%11,%12,%13,%14,%15,%16,%17,%18,%19,%20,%21,%22,%23,%24,%25,%26,%27,%28,%29,%30]; _return',_Setting1,_Setting2,_Setting3,_Setting4,_Setting5,_Setting6,_Setting7,_Setting8,_Setting9,_Setting10,_Setting11,_Setting12,_Setting13,_Setting14,_Setting15,_Setting16,_Setting17,_Setting18,_Setting19,_Setting20,_Setting21,_Setting22,_Setting23,_Setting24,_Setting25,_Setting26,_Setting27,_Setting28,_Setting29,_Setting30]);
 publicVariable "BASIX_SETTINGS";

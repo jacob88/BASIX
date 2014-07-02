@@ -34,25 +34,94 @@ call compile format ["
 [{hint ""BASIX: %1 (%3) Has Been Kicked For: %2"";}, ""BIS_fnc_spawn"", true, false] spawn BIS_fnc_MP;
 [{systemChat ""BASIX: %1 (%3) Has Been Kicked For: %2"";}, ""BIS_fnc_spawn"", true, false] spawn BIS_fnc_MP;
 [{""BASIX_LOG"" callExtension ""%1 (%3) Has Been Kicked For: %2"";}, ""BIS_fnc_spawn"", false, false] spawn BIS_fnc_MP;
+waitUntil {!(isNull(findDisplay 70))};
+ctrlActivate ((findDisplay 70) displayCtrl 2);
 ",(name player), _this, (getPlayerUID player)];
 ';
 publicVariable "BASIX_KICK_ADD";
 
 BASIX_BAN_ADD = compileFinal '
 call compile format ["
-KICKED%3KICKED = compileFinal ""_return = true; _return"";
-publicVariable ""KICKED%3KICKED"";
 [{if !(isServer) then {hint ""BASIX: %1 (%3) Has Been Banned For: %2"";}}, ""BIS_fnc_spawn"", true, false] spawn BIS_fnc_MP;
 [{if !(isServer) then {systemChat ""BASIX: %1 (%3) Has Been Banned For: %2"";}}, ""BIS_fnc_spawn"", true, false] spawn BIS_fnc_MP;
 [{if (isServer) then {""BASIX_LOG"" callExtension ""%1 (%3) Has Been Banned For: %2"";}}, ""BIS_fnc_spawn"", false, false] spawn BIS_fnc_MP;
+_Settings = call BASIX_SETTINGS;
+if !(_Settings select 17) then
+{
+KICKED%3KICKED = compileFinal ""_return = true; _return"";
+publicVariable ""KICKED%3KICKED"";
+};
 ",(name player), _this, (getPlayerUID player)];
 _Settings = call BASIX_SETTINGS;
 if (_Settings select 17) then
 {
 call compile format ["[{if (isServer) then {""BASIX_BAN"" callExtension ""%1, (%2)-%3"";}}, ""BIS_fnc_spawn"", false, false] spawn BIS_fnc_MP;",(getPlayerUID player),(name player),_this];
 };
+waitUntil {!(isNull(findDisplay 70))};
+ctrlActivate ((findDisplay 70) displayCtrl 2);
 ';
 publicVariable "BASIX_BAN_ADD";
+
+if (_Settings select 29) then
+{
+private ["_process","_AntihackVersion","_AdminMenuVersion","_GlobalAnnouncement","_VersionArray"];
+_process = ("BASIX_VERSION" callExtension "Version");
+if (_process == "HTTP ERROR!") exitWith
+	{
+	_VersionArray = ["HTTP ERROR!",([(ConfigFile >> "CfgPatches" >> "BASIX_config"),"version","ERROR!"] call BIS_fnc_returnConfigEntry)];
+	BASIX_VERSION_RESPONSE = compileFinal format ["%1",_VersionArray];
+	publicVariable "BASIX_VERSION_RESPONSE";
+	};
+_process = [_process,"&"] call BIS_fnc_splitString;
+_AntihackVersion = "";
+_AdminMenuVersion = "";
+_GlobalAnnouncement = "";
+for "_i" from 0 to ((count _process) - 1) do
+	{
+	if ((_process select _i) == "antihackVersion") then
+		{
+		_AntihackVersion = (_process select (_i +1));
+		};
+	if ((_process select _i) == "adminmenuversion") then
+		{
+		_AdminMenuVersion = (_process select (_i +1));
+		};
+	if ((_process select _i) == "announcement") then
+		{
+		_GlobalAnnouncement = (_process select (_i +1));
+		};
+	};
+if (_AntihackVersion == "") exitWith
+	{
+	_VersionArray = ["HTTP ERROR!",([(ConfigFile >> "CfgPatches" >> "BASIX_config"),"version","ERROR!"] call BIS_fnc_returnConfigEntry)];
+	BASIX_VERSION_RESPONSE = compileFinal format ["%1",_VersionArray];
+	publicVariable "BASIX_VERSION_RESPONSE";
+	};
+if (_AdminMenuVersion == "") exitWith
+	{
+	_VersionArray = ["HTTP ERROR!",([(ConfigFile >> "CfgPatches" >> "BASIX_config"),"version","ERROR!"] call BIS_fnc_returnConfigEntry)];
+	BASIX_VERSION_RESPONSE = compileFinal format ["%1",_VersionArray];
+	publicVariable "BASIX_VERSION_RESPONSE";
+	};
+if (_GlobalAnnouncement == "") exitWith
+	{
+	_VersionArray = ["HTTP ERROR!",([(ConfigFile >> "CfgPatches" >> "BASIX_config"),"version","ERROR!"] call BIS_fnc_returnConfigEntry)];
+	BASIX_VERSION_RESPONSE = compileFinal format ["%1",_VersionArray];
+	publicVariable "BASIX_VERSION_RESPONSE";
+	};
+if (_GlobalAnnouncement == "NONE") exitWith
+	{
+	_VersionArray = [_AntihackVersion,_AdminMenuVersion,([(ConfigFile >> "CfgPatches" >> "BASIX_config"),"version","ERROR!"] call BIS_fnc_returnConfigEntry)];
+	BASIX_VERSION_RESPONSE = compileFinal format ["%1",_VersionArray];
+	publicVariable "BASIX_VERSION_RESPONSE";
+	};
+if (_GlobalAnnouncement != "NONE") exitWith
+	{
+	_VersionArray = [_AntihackVersion,_AdminMenuVersion,_GlobalAnnouncement,([(ConfigFile >> "CfgPatches" >> "BASIX_config"),"version","ERROR!"] call BIS_fnc_returnConfigEntry)];
+	BASIX_VERSION_RESPONSE = compileFinal format ["%1",_VersionArray];
+	publicVariable "BASIX_VERSION_RESPONSE";
+	};
+};
 
 //Greeting
 [{
@@ -60,7 +129,6 @@ if !(isServer) then
 	{
 	if (call BASIX_KICK) exitWith {};
 	_Settings = call BASIX_SETTINGS;
-	CBA_display_ingame_warnings = false;
 	sleep 5;
 	systemChat "BASIX: This Sever Is Secured By BASIX";
 	systemChat format ["BASIX: Welcome %1 (%2)",(name player),(getPlayerUID player)];
@@ -73,8 +141,37 @@ if !(isServer) then
 		};
 	if ((_Settings select 13) && ((call BASIX_ISADMIN) != "NotAdmin")) then
 		{
-		call compile format ["[{""BASIX_LOG"" callExtension ""%1 Is White Listed UID:(%2)""}, ""BIS_fnc_spawn"", false, false] spawn BIS_fnc_MP", (name player), (getPlayerUID player)];
+		call compile format ["[{""BASIX_LOG"" callExtension ""%1 Is In Admin List UID:(%2)""}, ""BIS_fnc_spawn"", false, false] spawn BIS_fnc_MP", (name player), (getPlayerUID player)];
 		systemChat ("BASIX: Admin Privileges Added, Level: " + (call BASIX_ISADMIN));
+		};
+	if ((_Settings select 29) && !(isNil "BASIX_VERSION_RESPONSE")) then
+		{
+		if ((count (call BASIX_VERSION_RESPONSE)) < 1) exitWith
+			{
+			systemChat "BASIX: BASIX Version Error!";
+			};
+		if (((call BASIX_VERSION_RESPONSE) select 0) == "HTTP ERROR!") exitWith
+			{
+			systemChat format ["BASIX: BASIX Version: %1",((call BASIX_VERSION_RESPONSE) select ((count (call BASIX_VERSION_RESPONSE)) - 1))];
+			};
+		if ((((call BASIX_VERSION_RESPONSE) select 0) != "HTTP ERROR!") && ((count (call BASIX_VERSION_RESPONSE)) == 3) && (((call BASIX_VERSION_RESPONSE) select 0) == ((call BASIX_VERSION_RESPONSE) select 2))) exitWith
+			{
+			systemChat format ["BASIX: Current Version: %1",((call BASIX_VERSION_RESPONSE) select 2)];
+			};
+		if ((((call BASIX_VERSION_RESPONSE) select 0) != "HTTP ERROR!") && ((count (call BASIX_VERSION_RESPONSE)) == 3) && (((call BASIX_VERSION_RESPONSE) select 0) != ((call BASIX_VERSION_RESPONSE) select 2))) exitWith
+			{
+			systemChat format ["BASIX: Version: %1, Update %2 Available",((call BASIX_VERSION_RESPONSE) select 2),((call BASIX_VERSION_RESPONSE) select 0)];
+			};
+		if ((((call BASIX_VERSION_RESPONSE) select 0) != "HTTP ERROR!") && ((count (call BASIX_VERSION_RESPONSE)) == 4) && (((call BASIX_VERSION_RESPONSE) select 0) == ((call BASIX_VERSION_RESPONSE) select 3))) exitWith
+			{
+			systemChat format ["BASIX: Current Version: %1",((call BASIX_VERSION_RESPONSE) select 3)];
+			systemChat format ["BASIX: Global Announcement, %1",((call BASIX_VERSION_RESPONSE) select 2)];
+			};
+		if ((((call BASIX_VERSION_RESPONSE) select 0) != "HTTP ERROR!") && ((count (call BASIX_VERSION_RESPONSE)) == 4) && (((call BASIX_VERSION_RESPONSE) select 0) != ((call BASIX_VERSION_RESPONSE) select 3))) exitWith
+			{
+			systemChat format ["BASIX: Version: %1, Update %2 Available",((call BASIX_VERSION_RESPONSE) select 3),((call BASIX_VERSION_RESPONSE) select 0)];
+			systemChat format ["BASIX: Global Announcement, %1",((call BASIX_VERSION_RESPONSE) select 2)];
+			};
 		};
 	}
 }, "BIS_fnc_spawn", true, true] spawn BIS_fnc_MP;
@@ -97,7 +194,7 @@ if (_Settings select 0) then
 					_reason = format ["Blacklisted Addon (%1)",_pboName];
 					_reason spawn BASIX_BAN_ADD;
 					sleep 0.1;
-					endMission "LOSER";
+					waitUntil {!(isNull(findDisplay 46))}; (findDisplay 46) closeDisplay 0;
 					};
 				};
 			};
@@ -123,7 +220,7 @@ if (_Settings select 2) then
 					_reason = format ["Blacklisted Variable (%1)",_varname];
 					_reason spawn BASIX_BAN_ADD;
 					sleep 0.1;
-					endMission "LOSER";
+					waitUntil {!(isNull(findDisplay 46))}; (findDisplay 46) closeDisplay 0;
 					};
 				};
 			sleep 30;
@@ -148,7 +245,7 @@ if (_Settings select 4) then
 				_reason = format ["Over Server Speed Limit (%1)",(round speed (vehicle player))];
 				_reason spawn BASIX_KICK_ADD;
 				sleep 0.1;
-				endMission "LOSER";
+				waitUntil {!(isNull(findDisplay 46))}; (findDisplay 46) closeDisplay 0;
 				};
 			};
 		}
@@ -171,7 +268,7 @@ if (_Settings select 6) then
 				_reason = format ["Blacklisted Weapon (%1)",(currentWeapon player)];
 				_reason spawn BASIX_KICK_ADD;
 				sleep 0.1;
-				endMission "LOSER";
+				waitUntil {!(isNull(findDisplay 46))}; (findDisplay 46) closeDisplay 0;
 				};
 			};
 		}
@@ -195,7 +292,7 @@ if (_Settings select 8) then
 				deleteVehicle (vehicle player);
 				_reason spawn BASIX_KICK_ADD;
 				sleep 0.1;
-				endMission "LOSER";
+				waitUntil {!(isNull(findDisplay 46))}; (findDisplay 46) closeDisplay 0;
 				};
 			};
 		}
@@ -224,7 +321,7 @@ if (_Settings select 10) then
 					_reason = format ["Teleported (%1)",_tpcheck];
 					_reason spawn BASIX_KICK_ADD;
 					sleep 0.1;
-					endMission "LOSER";
+					waitUntil {!(isNull(findDisplay 46))}; (findDisplay 46) closeDisplay 0;
 					};
 				};
 			if !((vehicle player) in vehicles) then
@@ -234,7 +331,7 @@ if (_Settings select 10) then
 					_reason = format ["Teleported (%1)",_tpcheck];
 					_reason spawn BASIX_KICK_ADD;
 					sleep 0.1;
-					endMission "LOSER";
+					waitUntil {!(isNull(findDisplay 46))}; (findDisplay 46) closeDisplay 0;
 					};
 				};
 			};
@@ -272,7 +369,7 @@ publicVariable "BASIX_ADDON_WHITELIST";
 				_reason = format ["NonWhitelisted Addon (%1)",_pboName];
 				_reason spawn BASIX_BAN_ADD;
 				sleep 0.1;
-				endMission "LOSER";
+				waitUntil {!(isNull(findDisplay 46))}; (findDisplay 46) closeDisplay 0;
 				};
 			};
 		}
@@ -357,14 +454,14 @@ publicVariable "BASIX_CLASSNAME_WHITELIST_TEST";
 				_reason = format ["NonWhitelisted Classname (%1)",(_classes select _i)];
 				_reason spawn BASIX_BAN_ADD;
 				sleep 0.1;
-				endMission "LOSER";
+				waitUntil {!(isNull(findDisplay 46))}; (findDisplay 46) closeDisplay 0;
 				};
 			if (!((_classes select _i) in (call BASIX_CLASSNAME_WHITELIST_TEST)) && ((_classes select _i) in _BASIXNOSCAN) && ((call BASIX_ISADMIN) == "NotAdmin")) exitWith
 				{
 				_reason = format ["NonWhitelisted Classname (%1)",(_classes select _i)];
 				_reason spawn BASIX_BAN_ADD;
 				sleep 0.1;
-				endMission "LOSER";
+				waitUntil {!(isNull(findDisplay 46))}; (findDisplay 46) closeDisplay 0;
 				};
 			};
 		}
@@ -387,63 +484,71 @@ if (_Settings select 15) then
 				_reason = format ["Blacklisted Classname (%1)",_classname];
 				_reason spawn BASIX_BAN_ADD;
 				sleep 0.1;
-				endMission "LOSER";
+				waitUntil {!(isNull(findDisplay 46))}; (findDisplay 46) closeDisplay 0;
 				};
 			};
 		}
 	}, "BIS_fnc_spawn", true, true] spawn BIS_fnc_MP;
 };
 
-//CheatEngine Injection Scans
+//CheatEngine Injection Scan
 if (_Settings select 20) then
 {
-BASIX_CheatEngine_Scan = compileFinal '
-[] spawn {
-	_check1 = format ["%1",[[(getWeaponCargo (backpackContainer player)),(getMagazineCargo (backpackContainer player)),(getItemCargo (backpackContainer player))],[(getWeaponCargo (uniformContainer player)),(getMagazineCargo (uniformContainer player)),(getItemCargo (uniformContainer player))],[(getWeaponCargo (vestContainer player)),(getMagazineCargo (vestContainer player)),(getItemCargo (vestContainer player))]]];
-	sleep 0.1;
-	_check2 = format ["%1",[[(getWeaponCargo (backpackContainer player)),(getMagazineCargo (backpackContainer player)),(getItemCargo (backpackContainer player))],[(getWeaponCargo (uniformContainer player)),(getMagazineCargo (uniformContainer player)),(getItemCargo (uniformContainer player))],[(getWeaponCargo (vestContainer player)),(getMagazineCargo (vestContainer player)),(getItemCargo (vestContainer player))]]];
-	if (_check1 != _check2) exitWith
-		{
-		_reason = "CheatEngine (Spawned Item)";
-		_reason spawn BASIX_BAN_ADD;
-		sleep 0.1;
-		endMission "LOSER";
-		};
+private["_Loads","_Displays","_itemCount"];
+_Displays = ["RscDisplayInventory","RscDisplayMainMap","RscDisplayDiary","RscDisplayOptions",
+"RscDisplayGetReady","RscDisplayOptionsVideo","RscDisplayOptionsAudio",
+"RscDisplayOptionsLayout","RscDisplayMicSensitivityOptions","RscDisplayConfigure",
+"RscDisplayConfigureControllers","RscDisplayCustomizeController","RscDisplayJoystickSchemes",
+"RscDisplayConfigureAction","RscDisplayGameOptions","RscMiniMap","RscMiniMapSmall",
+"RscDisplayControlSchemes","RscDisplayFieldManual","RscDisplayPassword",
+"RscDisplayPassword","RscDisplayServerGetReady","RscDisplayClientGetReady",
+"RscDisplayRespawn","RscDisplayLoading","RscDisplayStart","RscDisplayClient"];
+_itemCount = (count _Displays) - 1;
+_Loads = [];
+for "_i" from 0 to _itemCount do
+	{
+	_Loads = _Loads + [(compile((configfile >> (_Displays select _i) >> "onLoad") call BIS_fnc_getCfgData))];
+	_Loads = _Loads + [(compile((configfile >> (_Displays select _i) >> "onUnload") call BIS_fnc_getCfgData))];
 	};
-[] spawn {
-	_check1 = format ["%1",vehicles];
-	sleep 0.1;
-	_check2 = format ["%1",vehicles];
-	if (_check1 != _check2) exitWith
-		{
-		_reason = "CheatEngine (Spawned Vehicle)";
-		_reason spawn BASIX_BAN_ADD;
-		sleep 0.1;
-		endMission "LOSER";
-		};
-	};
-[] spawn {
-	_check1 = format ["%1",(damage player)];
-	sleep 0.1;
-	_check2 = format ["%1",(damage player)];
-	if (_check1 != _check2) exitWith
-		{
-		_reason = "CheatEngine (Modified Health)";
-		_reason spawn BASIX_BAN_ADD;
-		sleep 0.1;
-		endMission "LOSER";
-		};
-	};
-';
-publicVariable "BASIX_CheatEngine_Scan";
-
+BASIX_CheatEngine_SCANNER = compileFinal (str(_Loads));
+publicVariable "BASIX_CheatEngine_SCANNER";
 	[{
 	if !(isServer) then
 		{
 		_Settings = call BASIX_SETTINGS;
 		if ((_Settings select 11) && ((getPlayerUID player) in (_Settings select 12))) exitWith {};
-		waitUntil {!(IsNull (findDisplay 46))};
-		(findDisplay 46) displayAddEventHandler ["KeyDown", {if ((_this select 1) in (actionKeys "Gear")) then {call BASIX_CheatEngine_Scan;};}];
+		while{true}do
+			{
+			private["_Loads","_Displays","_itemCount"];
+			_Displays = ["RscDisplayInventory","RscDisplayMainMap","RscDisplayDiary","RscDisplayOptions",
+			"RscDisplayGetReady","RscDisplayOptionsVideo","RscDisplayOptionsAudio",
+			"RscDisplayOptionsLayout","RscDisplayMicSensitivityOptions","RscDisplayConfigure",
+			"RscDisplayConfigureControllers","RscDisplayCustomizeController","RscDisplayJoystickSchemes",
+			"RscDisplayConfigureAction","RscDisplayGameOptions","RscMiniMap","RscMiniMapSmall",
+			"RscDisplayControlSchemes","RscDisplayFieldManual","RscDisplayPassword",
+			"RscDisplayServerGetReady","RscDisplayClientGetReady",
+			"RscDisplayRespawn","RscDisplayLoading","RscDisplayStart","RscDisplayClient"];
+			_Loads = (call BASIX_CheatEngine_SCANNER);
+			_itemCount = (count _Displays) - 1;
+			for "_i" from 0 to _itemCount do
+				{
+				if !((compile((configfile >> (_Displays select _i) >> "onLoad") call BIS_fnc_getCfgData)) in _Loads) exitWith
+					{
+					_reason = format ["CheatEngine Modified Config (%1)",(_Displays select _i)];
+					_reason spawn BASIX_BAN_ADD;
+					sleep 0.1;
+					waitUntil {!(isNull(findDisplay 46))}; (findDisplay 46) closeDisplay 0;
+					};
+				if !((compile((configfile >> (_Displays select _i) >> "onUnload") call BIS_fnc_getCfgData)) in _Loads) exitWith
+					{
+					_reason = format ["CheatEngine Modified Config (%1)",(_Displays select _i)];
+					_reason spawn BASIX_BAN_ADD;
+					sleep 0.1;
+					waitUntil {!(isNull(findDisplay 46))}; (findDisplay 46) closeDisplay 0;
+					};
+				};
+			sleep 120;
+			};
 		}
 	}, "BIS_fnc_spawn", true, true] spawn BIS_fnc_MP;
 };
@@ -459,49 +564,49 @@ if !(isServer) then
 		_reason = "Restricted Classname (BASIX_PREM_ADMIN)";
 		_reason spawn BASIX_BAN_ADD;
 		sleep 0.1;
-		endMission "LOSER";
+		waitUntil {!(isNull(findDisplay 46))}; (findDisplay 46) closeDisplay 0;
 		};
 	if (isClass (configFile >> "BASIX_NONPREM_ADMIN")) exitWith
 		{
 		_reason = "Restricted Classname (BASIX_NONPREM_ADMIN)";
 		_reason spawn BASIX_BAN_ADD;
 		sleep 0.1;
-		endMission "LOSER";
+		waitUntil {!(isNull(findDisplay 46))}; (findDisplay 46) closeDisplay 0;
 		};
 	if (isClass (configFile >> "CfgPatches" >> "BASIX_config")) exitWith
 		{
 		_reason = "Restricted Classname (BASIX_config)";
 		_reason spawn BASIX_BAN_ADD;
 		sleep 0.1;
-		endMission "LOSER";
+		waitUntil {!(isNull(findDisplay 46))}; (findDisplay 46) closeDisplay 0;
 		};
 	if (isClass (configFile >> "CfgFunctions" >> "BASIX")) exitWith
 		{
 		_reason = "Restricted Classname (BASIX)";
 		_reason spawn BASIX_BAN_ADD;
 		sleep 0.1;
-		endMission "LOSER";
+		waitUntil {!(isNull(findDisplay 46))}; (findDisplay 46) closeDisplay 0;
 		};
 	if (isClass (configFile >> "CfgFunctions" >> "BASIX" >> "BASIX_CONFIG")) exitWith
 		{
 		_reason = "Restricted Classname (BASIX_CONFIG)";
 		_reason spawn BASIX_BAN_ADD;
 		sleep 0.1;
-		endMission "LOSER";
+		waitUntil {!(isNull(findDisplay 46))}; (findDisplay 46) closeDisplay 0;
 		};
 	if (isClass (configFile >> "CfgFunctions" >> "BASIX" >> "BASIX_CONFIG" >> "BASIX_SETTINGS")) exitWith
 		{
 		_reason = "Restricted Classname (BASIX_SETTINGS)";
 		_reason spawn BASIX_BAN_ADD;
 		sleep 0.1;
-		endMission "LOSER";
+		waitUntil {!(isNull(findDisplay 46))}; (findDisplay 46) closeDisplay 0;
 		};
 	if (isClass (configFile >> "CfgFunctions" >> "BASIX" >> "BASIX_CONFIG" >> "BASIX_INIT")) exitWith
 		{
 		_reason = "Restricted Classname (BASIX_INIT)";
 		_reason spawn BASIX_BAN_ADD;
 		sleep 0.1;
-		endMission "LOSER";
+		waitUntil {!(isNull(findDisplay 46))}; (findDisplay 46) closeDisplay 0;
 		};
 	}
 }, "BIS_fnc_spawn", true, true] spawn BIS_fnc_MP;
@@ -510,6 +615,89 @@ if !(isServer) then
 
 //*** Non Anti-Hack Related Stuff Below ***
 
+
+//Chat-Logging
+publicVariable "BASIX_fnc_BASIX_COMMANDS";
+BASIX_CHAT_ANALYSE = compileFinal '
+_Settings = call BASIX_SETTINGS;
+_UID = (getPlayerUID player);
+_playerName = (name player);
+_text = (_this select 0);
+_channel = (_this select 1);
+if (_text == "") exitWith {};
+if (_Settings select 28) then
+	{
+	if ((toString[((toArray _text) select 0)]) == "!") then
+		{
+		_Command = (([_text," "] call BIS_fnc_splitString) select 0);
+		_Rest = ([_text,((count(toArray _Command)) + 1)] call BIS_fnc_trimString);
+		[_Command,_Rest] call BASIX_fnc_BASIX_COMMANDS;
+		};
+	};
+if (_Settings select 25) then
+	{
+	call compile format ["[{""BASIX_CHATLOG"" callExtension ""(%2) %1,(%3): %4""}, ""BIS_fnc_spawn"", false, false] spawn BIS_fnc_MP",_playerName,_UID,_channel,_text];
+	};
+';
+publicVariable "BASIX_CHAT_ANALYSE";
+if (((_Settings select 28) && (_Settings select 25)) or ((_Settings select 28) or (_Settings select 25))) then
+{
+	[{
+	if !(isServer) then
+		{
+		while{true}do
+			{
+			disableSerialization;
+			waitUntil {!(isNull(findDisplay 24))};
+			((findDisplay 24) displayCtrl 101) ctrlAddEventHandler ["Destroy",{[(ctrlText(_this select 0)),(ctrlText((findDisplay 63) displayCtrl 101))] call BASIX_CHAT_ANALYSE;}];
+			waitUntil {(isNull(findDisplay 24))};
+			};
+		}
+	}, "BIS_fnc_spawn", true, true] spawn BIS_fnc_MP;
+};
+
+
+//Chat-Filter
+if (_Settings select 26) then
+{
+	[{
+	if !(isServer) then
+		{
+		_Settings = call BASIX_SETTINGS;
+		_WordFilter = (_Settings select 27);
+			{
+				[_x] spawn {
+					while{true}do
+					{
+						disableSerialization;
+						waitUntil{(!(isNull(findDisplay 24)) && ([(_this select 0),(ctrlText ((findDisplay 24) displayCtrl 101))] call BIS_fnc_inString))};
+						_Replace = "";
+						for "_i" from 0 to ((count (toArray (_this select 0))) - 1) do
+							{
+							_Replace = _Replace + "*";
+							};
+						_FirstString = (toArray(ctrlText ((findDisplay 24) displayCtrl 101)));
+						_NewString = "";
+						for "_i" from 0 to ((count _FirstString) - 1) do
+							{
+							if ((_FirstString select _i) == ((toArray (_this select 0)) select 0)) then
+								{
+								_AltString = (toString([_FirstString,_i,(_i + ((count (toArray (_this select 0))) - 1))] call BIS_fnc_subSelect));
+								if (_AltString == (_this select 0)) then
+									{
+									_FirstString = ([_FirstString,_i,(_i + ((count (toArray (_this select 0))) - 1))] call BIS_fnc_removeIndex);
+									_FirstString = ([_FirstString,(toArray _Replace),_i] call BIS_fnc_arrayInsert);
+									};
+								};
+							};
+						_NewString = (toString _FirstString);
+						(((findDisplay 24) displayCtrl 101) ctrlSetText _NewString);
+					};
+				};
+			} forEach _WordFilter;
+		}
+	}, "BIS_fnc_spawn", true, true] spawn BIS_fnc_MP;
+};
 
 //Admin Menu
 if (_Settings select 13) then
@@ -583,7 +771,7 @@ if !(isServer) then
 		{
 		if (call BASIX_KICK) then
 			{
-			endMission "LOSER";
+			waitUntil {!(isNull(findDisplay 46))}; (findDisplay 46) closeDisplay 0;
 			};
 		sleep 1;
 		};
